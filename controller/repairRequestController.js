@@ -1,3 +1,4 @@
+import { scheduleAutoQuote } from '../services/autoQuote.js';
 import RepairRequest from '../model/repairRequestModel.js';
 import ServiceCategory from '../model/serviceCategoryModel.js';
 import TechnicianProfile from '../model/technicianProfileModel.js';
@@ -47,6 +48,7 @@ export const createRepairRequest = asyncHandler(async (req, res) => {
   });
 
   notifyMatchingProviders(request).catch(() => {});
+  scheduleAutoQuote(request._id);
   return created(res, request, 'Repair request created');
 });
 

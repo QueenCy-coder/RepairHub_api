@@ -8,6 +8,7 @@ import { toPoint, withinRadius } from '../utils/geo.js';
 import { pageMeta, parsePagination } from '../utils/paginate.js';
 import { badRequest, conflict, forbidden, notFound } from '../utils/ApiError.js';
 import { notifyUser } from '../services/notificationService.js';
+import { scheduleAutoVerify } from '../services/autoVerify.js';
 import { requireCenterProfile } from '../services/access.js';
 
 const PUBLIC_HIDE = '-verificationDocs -verificationFeedback -ratingSum';
@@ -57,6 +58,7 @@ export const uploadCenterDocs = asyncHandler(async (req, res) => {
   c.verificationDocs.push(...(await uploadManyToCloudinary(req.files, 'center-verification')));
   if (c.verificationStatus === 'rejected') { c.verificationStatus = 'pending'; c.verificationFeedback = null; }
   await c.save();
+  scheduleAutoVerify(c.constructor, c._id, 'Your service center has been verified!');
   return ok(res, c, 'Documents uploaded');
 });
 

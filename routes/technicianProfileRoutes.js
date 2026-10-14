@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import {
   listTechnicianProfiles, getMyTechnicianProfile, getTechnicianProfileById, updateTechnicianProfile,
-  uploadVerificationDocs, listPendingVerifications, verifyTechnician,
+  uploadVerificationDocs, uploadProfilePhoto, listPendingVerifications, verifyTechnician,
 } from '../controller/technicianProfileController.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { upload } from '../middleware/upload.js';
@@ -19,5 +19,6 @@ router.get('/:id', getTechnicianProfileById);
 router.patch('/:id', protect, authorize('technician'), validate(s.technicianProfileUpdate), updateTechnicianProfile);
 router.patch('/:id/verify', protect, authorize('admin'), validate(s.verifyDecision), verifyTechnician);
 router.post('/:id/verification-docs', protect, authorize('technician'), upload.array('docs', 5), uploadVerificationDocs);
+router.post('/:id/photo', protect, authorize('technician'), upload.single('photo'), uploadProfilePhoto);
 
 export default router;

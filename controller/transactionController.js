@@ -51,6 +51,11 @@ export const payForJob = asyncHandler(async (req, res) => {
   // paystack: create a pending ledger row, then hand the customer the checkout URL.
   const reference = newReference('esc');
   await Transaction.create({ userId: req.user._id, repairJobId: job._id, type: 'escrow_payment', gateway: 'paystack', amount: job.price, reference });
+  // Optional demo switch: AUTO_PAY=1 settles the charge at once (no checkout page); the app then confirms it as usual.
+  if (process.env.AUTO_PAY === '1') {
+    await fulfilCharge(reference);
+    return created(res, { reference, authorizationUrl: null, amount: job.price }, 'Payment received');
+  }
   const init = await initializeTransaction({ email: req.user.email, amount: job.price, reference, metadata: { repairJobId: String(job._id), purpose: 'escrow' } });
   return created(res, { reference, authorizationUrl: init.authorization_url, amount: job.price }, 'Complete the payment on the checkout page');
 });

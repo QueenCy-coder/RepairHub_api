@@ -23,6 +23,7 @@ export const register = Joi.object({
   role: Joi.string().valid('customer', 'technician', 'service_center').required(),
   businessName: Joi.string().trim().max(150), // service_center only
 });
+export const deviceToken = Joi.object({ token: Joi.string().trim().pattern(/^Expo(nent)?PushToken\[.+\]$/).required() });
 export const login = Joi.object({ email: Joi.string().trim().lowercase().email({ tlds: { allow: false } }).required(), password: Joi.string().required() });
 export const verifySend = Joi.object({
   email: Joi.string().trim().lowercase().email({ tlds: { allow: false } }).required(),

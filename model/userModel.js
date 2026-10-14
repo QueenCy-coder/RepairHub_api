@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ROLES, required: true },
     status: { type: String, enum: ['active', 'suspended'], default: 'active' },
     lastLoginAt: { type: Date },
+    pushTokens: { type: [String], default: [], select: false }, // Expo push tokens of this person's phones
     // Password reset (self-service). Only the SHA-256 hash of the token is stored; expires in 1h.
     passwordResetHash: { type: String, select: false },
     passwordResetExpires: { type: Date },

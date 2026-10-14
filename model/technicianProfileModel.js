@@ -31,6 +31,7 @@ const technicianProfileSchema = new mongoose.Schema(
       enum: ['pending', 'verified', 'rejected'],
       default: 'pending',
     },
+    photoUrl: { type: String, default: null }, // profile photo (Cloudinary URL)
     verificationDocs: [{ type: String }], // Cloudinary URLs
     verificationFeedback: { type: String, default: null },
     verifiedAt: { type: Date },

@@ -7,6 +7,7 @@ import { toPoint, withinRadius } from '../utils/geo.js';
 import { pageMeta, parsePagination } from '../utils/paginate.js';
 import { badRequest, forbidden, notFound } from '../utils/ApiError.js';
 import { notifyUser } from '../services/notificationService.js';
+import { scheduleAutoVerify } from '../services/autoVerify.js';
 
 const PUBLIC_HIDE = '-verificationDocs -verificationFeedback -availabilityCalendar -ratingSum';
 
@@ -71,7 +72,19 @@ export const uploadVerificationDocs = asyncHandler(async (req, res) => {
     profile.verificationFeedback = null;
   }
   await profile.save();
+  scheduleAutoVerify(TechnicianProfile, profile._id, 'Your technician profile has been verified!');
   return ok(res, profile, 'Verification documents uploaded');
+});
+
+// POST /api/technician-profiles/:id/photo   (technician, own profile; multipart field "photo")
+export const uploadProfilePhoto = asyncHandler(async (req, res) => {
+  const profile = await loadOwned(req);
+  if (!req.file) throw badRequest('Attach a photo (field "photo")');
+  if (!req.file.mimetype.startsWith('image/')) throw badRequest('The profile photo must be an image');
+  const [url] = await uploadManyToCloudinary([req.file], 'technician-photos');
+  profile.photoUrl = url;
+  await profile.save();
+  return ok(res, profile, 'Profile photo updated');
 });
 
 // GET /api/technician-profiles/pending  (admin)

@@ -1,9 +1,22 @@
 import Notification from '../model/notificationModel.js';
+import User from '../model/userModel.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ok } from '../utils/apiResponse.js';
 import { notFound } from '../utils/ApiError.js';
 import { pageMeta, parsePagination } from '../utils/paginate.js';
 export { notifyUser } from '../services/notificationService.js';
+
+// POST /api/notifications/devices   { token }   — remember this phone for push notifications
+export const registerDevice = asyncHandler(async (req, res) => {
+    await User.updateOne({ _id: req.user._id }, { $addToSet: { pushTokens: req.body.token } });
+    return ok(res, { registered: true }, 'Device registered');
+});
+
+// DELETE /api/notifications/devices   { token }   — e.g. on log out
+export const unregisterDevice = asyncHandler(async (req, res) => {
+    await User.updateOne({ _id: req.user._id }, { $pull: { pushTokens: req.body.token } });
+    return ok(res, null, 'Device removed');
+});
 
 // GET /api/notifications?unread=true
 export const listMyNotifications = asyncHandler(async (req, res) => {
